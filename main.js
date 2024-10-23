@@ -36,7 +36,22 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(404, { 'Content-Type': 'text/plain' });
       res.end('404 Not Found');
     }
-  } else {
+    } else if (method === 'PUT') {
+        let body = [];
+        req.on('data', chunk => body.push(chunk));
+        req.on('end', async () => {
+          body = Buffer.concat(body);
+          try {
+            await fs.writeFile(filePath, body);
+            res.writeHead(201, { 'Content-Type': 'text/plain' });
+            res.end('201 Created');
+          } catch (err) {
+            res.writeHead(500, { 'Content-Type': 'text/plain' });
+            res.end('500 Internal Server Error');
+          }
+        });
+      }
+  else {
     res.writeHead(405, { 'Content-Type': 'text/plain' });
     res.end('405 Method Not Allowed');
   }
