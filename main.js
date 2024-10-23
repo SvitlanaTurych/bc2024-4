@@ -50,12 +50,20 @@ const server = http.createServer(async (req, res) => {
             res.end('500 Internal Server Error');
           }
         });
-      }
-  else {
-    res.writeHead(405, { 'Content-Type': 'text/plain' });
-    res.end('405 Method Not Allowed');
-  }
-});
+    } else if (method === 'DELETE') {
+            try {
+              await fs.unlink(filePath);
+              res.writeHead(200, { 'Content-Type': 'text/plain' });
+              res.end('200 OK');
+            } catch (err) {
+              res.writeHead(404, { 'Content-Type': 'text/plain' });
+              res.end('404 Not Found');
+            }
+          } else {
+            res.writeHead(405, { 'Content-Type': 'text/plain' });
+            res.end('405 Method Not Allowed');
+        }
+    });
 
 server.listen(options.port, options.host, () => {
   console.log(`Server running at http://${options.host}:${options.port}/`);
