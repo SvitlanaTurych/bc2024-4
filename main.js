@@ -2,6 +2,7 @@ const http = require('http');
 const { Command } = require('commander');
 const fs = require('fs').promises; 
 const path = require('path');
+const superagent = require('superagent');
 
 const program = new Command();
 
@@ -30,12 +31,19 @@ const server = http.createServer(async (req, res) => {
   if (method === 'GET') {
     try {
       const data = await fs.readFile(filePath);
-      res.writeHead(200, { 'Content-Type': 'image/jpeg' });
-      res.end(data);
-    } catch (err) {
-      res.writeHead(404, { 'Content-Type': 'text/plain' });
-      res.end('404 Not Found');
-    }
+      res.writeHead(200, {'Content-Type': 'image/jpeg'});
+        res.end(data);
+        } 
+            catch (err) {
+                try {
+       const response = await superagent.get(`https://http.cat/${code}`);
+       await fs.writeFile(filePath, response.body);
+         res.writeHead(200, { 'Content-Type': 'image/jpeg' });
+       res.end(response.body);}
+       catch (error) {
+         res.writeHead(404);
+         res.end('Not Found');}
+         }
     } else if (method === 'PUT') {
         let body = [];
         req.on('data', chunk => body.push(chunk));
